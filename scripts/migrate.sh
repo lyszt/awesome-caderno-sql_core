@@ -9,4 +9,4 @@ docker run --rm \
   --network rpg_net \
   -v "$(pwd)/migrations:/flyway/sql:z" \
   -v "$(pwd)/flyway.conf:/flyway/conf/flyway.conf:z" \
-  flyway/flyway:10 "${@:-migrate}"
+  flyway/flyway:10 -X "${@:-migrate}"

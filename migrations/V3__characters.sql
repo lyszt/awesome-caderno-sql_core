@@ -1,13 +1,17 @@
 
 
+DROP TYPE IF EXISTS genders;
+CREATE TYPE genders AS ENUM('masculino', 'feminino');
+
+
 DROP TABLE IF EXISTS character_info;
 CREATE TABLE character_info (
-    id integer generated always as identity primary key,
-    name varchar(20) unique,
-    description text,
-    class integer,
-    gender varchar(15),
-    race integer
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(20) UNIQUE,
+    description TEXT,
+    class INTEGER,
+    gender genders,
+    race INTEGER
 );
 
 
@@ -19,9 +23,9 @@ CREATE TYPE player_states AS ENUM(
 
 DROP TABLE IF EXISTS character_states;
 CREATE TABLE character_states(
-    player_id integer references character_info(id) not null,
-    state player_states not null,
-    chapter_id integer not null
+    player_id INTEGER REFERENCES character_info(id)  ON DELETE CASCADE NOT NULL,
+    state player_states NOT NULL,
+    chapter_id INTEGER NOT NULL
 );
 
 
@@ -38,23 +42,31 @@ CREATE OR REPLACE FUNCTION check_character_created() RETURNS TRIGGER AS $$
 DECLARE
     char_race races%ROWTYPE;
     char_class classes%ROWTYPE;
+    gender_descriptors RECORD;
+
 BEGIN  
     CASE TG_OP
         WHEN 'INSERT' THEN
+            SELECT * INTO gender_descriptors FROM get_gender_descriptors(NEW);
+            IF NOT FOUND THEN
+                RAISE NOTICE 'Infelizmente, nesse momento os únicos gêneros são masculino e feminino.';
+                RETURN NULL;
+            END IF;
             SELECT * INTO char_race FROM races WHERE races.id = NEW.race;
             SELECT * INTO char_class FROM classes WHERE classes.id = NEW.class;
             EXECUTE format('CREATE ROLE %I IN GROUP player', NEW.name);
-            INSERT INTO character_states(player_id, state, chapter_id) VALUES (NEW.id, 'exploring',1);
 
             RAISE NOTICE 'Parabéns, você criou seu personagem.';
             PERFORM pg_sleep(2);
-            RAISE NOTICE 'Seu personagem é %, um % da %a raça dos %s. Ainda não sabemos o que, mas algo te trouxe até
-            esse MMORPG. Um motivo. ', NEW.name, char_class.name, char_race.descriptor, char_race.name;
+            RAISE NOTICE 'Seu personagem é %, % % da % raça dos %s. Ainda não sabemos o que, mas algo te trouxe até
+            esse MMORPG. Um motivo. ', NEW.name, gender_descriptors.indefinite_article, gender_descriptors.class, gender_descriptors.descriptor, gender_descriptors.race;
             RETURN NEW;
         WHEN 'UPDATE' THEN
             RAISE NOTICE 'Personagens não podem ser alterados depois de criados.';
             RETURN OLD;
         WHEN 'DELETE' THEN 
+            DELETE FROM character_states WHERE player_id = OLD.id;
+            EXECUTE format('DROP ROLE %I', OLD.name);
             RAISE NOTICE 'O personagem % foi excluído da lista de personagens.', OLD.name;
             RETURN OLD;
         END CASE;
@@ -62,5 +74,45 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Gender descriptors
+ CREATE OR REPLACE FUNCTION get_gender_descriptors(p_char character_info)
+  RETURNS TABLE (race VARCHAR, class VARCHAR, descriptor VARCHAR, article TEXT,
+  indefinite_article TEXT) AS $$
+  BEGIN
+      CASE p_char.gender
+          WHEN 'masculino' THEN
+              RETURN QUERY
+              SELECT r.name, cl.name, r.descriptor, 'o', 'um'
+              FROM races r, classes cl
+              WHERE r.id = p_char.race AND cl.id = p_char.class;
+          WHEN 'feminino' THEN
+              RETURN QUERY
+              SELECT r.name_female, cl.name_female, r.descriptor_female, 'a', 'uma'
+              FROM races r, classes cl
+              WHERE r.id = p_char.race AND cl.id = p_char.class;
+          ELSE
+              RETURN;
+      END CASE;
+  END;
+  $$ LANGUAGE plpgsql;
+
+-- These functions are done after creation. The ones put here can't be done in a BEFORE trigger
+-- jack
+CREATE OR REPLACE FUNCTION perform_character_configuration() RETURNS TRIGGER AS $$
+BEGIN
+ CASE TG_OP
+        WHEN 'INSERT' THEN
+            INSERT INTO character_states(player_id, state, chapter_id) VALUES (NEW.id, 'exploring',1);
+            RETURN NEW;
+        ELSE
+            RETURN NULL;
+            -- rn doesn't do anything on other cases
+        END CASE;
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE TRIGGER check_char_change BEFORE INSERT OR UPDATE OR DELETE ON character_info 
 FOR EACH ROW EXECUTE FUNCTION check_character_created();
+
+CREATE OR REPLACE TRIGGER configure_char AFTER INSERT OR UPDATE OR DELETE ON character_info 
+FOR EACH ROW EXECUTE FUNCTION perform_character_configuration();

@@ -16,4 +16,4 @@ migrate:
 	./scripts/migrate.sh migrate
 
 run:
-	PGPASSWORD=rpg psql -h localhost -p 5433 -U rpg -d rpg
+	PGPASSWORD=rpg psql -h localhost -p 5433 -U rpg -d rpg 
