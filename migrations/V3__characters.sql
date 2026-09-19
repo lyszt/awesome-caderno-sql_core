@@ -54,7 +54,7 @@ BEGIN
             END IF;
             SELECT * INTO char_race FROM races WHERE races.id = NEW.race;
             SELECT * INTO char_class FROM classes WHERE classes.id = NEW.class;
-            EXECUTE format('CREATE ROLE %I IN GROUP player', NEW.name);
+            EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L IN GROUP player', lower(NEW.name), lower(NEW.name));
             PERFORM play_animation('loading');
             RAISE NOTICE 'Parabéns, você criou seu personagem.';
             PERFORM pg_sleep(2);
