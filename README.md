@@ -4,7 +4,7 @@ A text RPG for psql where players create a character with an INSERT and a trigge
 
 ## Overview
 
-Players interact with the game through SQL statements in psql. Each statement changes a table, and triggers on that table apply the game rules and reply with notices. Functions hold the shared logic, and the tables hold the world data and the player state.
+The game is a PostgreSQL schema that players use from psql. Their SQL statements advance the story, and the database answers with notices.
 
 ## Requirements
 
