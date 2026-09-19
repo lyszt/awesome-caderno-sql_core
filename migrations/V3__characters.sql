@@ -55,11 +55,10 @@ BEGIN
             SELECT * INTO char_race FROM races WHERE races.id = NEW.race;
             SELECT * INTO char_class FROM classes WHERE classes.id = NEW.class;
             EXECUTE format('CREATE ROLE %I IN GROUP player', NEW.name);
-
+            PERFORM play_animation('loading');
             RAISE NOTICE 'Parabéns, você criou seu personagem.';
             PERFORM pg_sleep(2);
-            RAISE NOTICE 'Seu personagem é %, % % da % raça dos %s. Ainda não sabemos o que, mas algo te trouxe até
-            esse MMORPG. Um motivo. ', NEW.name, gender_descriptors.indefinite_article, gender_descriptors.class, gender_descriptors.descriptor, gender_descriptors.race;
+            RAISE NOTICE 'Seu personagem é %, % % da % raça dos %s.', NEW.name, gender_descriptors.indefinite_article, gender_descriptors.class, gender_descriptors.descriptor, gender_descriptors.race;
             RETURN NEW;
         WHEN 'UPDATE' THEN
             RAISE NOTICE 'Personagens não podem ser alterados depois de criados.';
@@ -103,6 +102,8 @@ BEGIN
  CASE TG_OP
         WHEN 'INSERT' THEN
             INSERT INTO character_states(player_id, state, chapter_id) VALUES (NEW.id, 'exploring',1);
+            PERFORM clean_frame();
+            PERFORM show_characters();
             RETURN NEW;
         ELSE
             RETURN NULL;
