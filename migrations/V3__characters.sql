@@ -9,9 +9,9 @@ CREATE TABLE character_info (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(20) UNIQUE,
     description TEXT,
-    class INTEGER,
-    gender genders,
-    race INTEGER
+    class INTEGER NOT NULL REFERENCES classes(id),
+    gender genders NOT NULL,
+    race INTEGER NOT NULL REFERENCES races(id)
 );
 
 

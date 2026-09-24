@@ -65,10 +65,16 @@ DECLARE
     header TEXT := format('| %-3s %-20s %-16s %-12s |', 'ID', 'NOME', 'RAÇA', 'CLASSE');
     char_rows TEXT;
 BEGIN
-    SELECT string_agg(format('| %-3s %-20s %-16s %-12s |', c.id, c.name, d.race, d.class), E'\n' ORDER BY c.id)
-    INTO char_rows
-    FROM character_info c
-    CROSS JOIN LATERAL get_gender_descriptors(c) d;
+    WITH char_info AS(
+        SELECT c.id,
+        c.name,
+        d.race,
+        d.class
+        FROM character_info c
+        CROSS JOIN LATERAL get_gender_descriptors(c) d
+    )
+    SELECT INTO char_rows string_agg(format('| %-3s %-20s %-16s %-12s |', id, name, race, class), E'\n' ORDER BY(id)) 
+    FROM char_info;
 
     IF char_rows IS NULL THEN
         char_rows := format('| %-54s |', 'Nenhum personagem foi criado ainda.');

@@ -21,7 +21,7 @@ else
 fi
 
 echo "Waiting for Postgres to accept connections..."
-until docker exec rpg_postgres pg_isready -U rpg >/dev/null 2>&1; do
+until docker exec rpg_postgres pg_isready -U rpg -d postgres >/dev/null 2>&1; do
   sleep 1
 done
 echo "Postgres is up on localhost:5433 (db=rpg, user=rpg, password=rpg)"
