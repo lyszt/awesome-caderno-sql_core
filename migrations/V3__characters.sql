@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS character_states;
 CREATE TABLE character_states(
     player_id INTEGER REFERENCES character_info(id)  ON DELETE CASCADE NOT NULL,
     state player_states NOT NULL,
-    chapter_id INTEGER NOT NULL
+    chapter_id INTEGER NOT NULL DEFAULT 1
 );
 
 
@@ -34,6 +34,7 @@ CREATE TABLE character_states(
 CREATE ROLE player NOLOGIN;
 REVOKE UPDATE ON character_states FROM player;
 REVOKE UPDATE ON character_info FROM player;
+GRANT SELECT ON character_info, character_states TO player;
 
 -- Functions
 
@@ -49,24 +50,24 @@ BEGIN
         WHEN 'INSERT' THEN
             SELECT * INTO gender_descriptors FROM get_gender_descriptors(NEW);
             IF NOT FOUND THEN
-                RAISE NOTICE 'Infelizmente, nesse momento os únicos gêneros são masculino e feminino.';
+                PERFORM print('Infelizmente, nesse momento os únicos gêneros são masculino e feminino.');
                 RETURN NULL;
             END IF;
             SELECT * INTO char_race FROM races WHERE races.id = NEW.race;
             SELECT * INTO char_class FROM classes WHERE classes.id = NEW.class;
             EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L IN GROUP player', lower(NEW.name), lower(NEW.name));
             PERFORM play_animation('loading');
-            RAISE NOTICE 'Parabéns, você criou seu personagem.';
+            PERFORM print('Parabéns, você criou seu personagem.');
             PERFORM pg_sleep(2);
-            RAISE NOTICE 'Seu personagem é %, % % da % raça dos %s.', NEW.name, gender_descriptors.indefinite_article, gender_descriptors.class, gender_descriptors.descriptor, gender_descriptors.race;
+            PERFORM print(format('Seu personagem é %s, %s %s da %s raça dos %ss.', NEW.name, gender_descriptors.indefinite_article, gender_descriptors.class, gender_descriptors.descriptor, gender_descriptors.race));
             RETURN NEW;
         WHEN 'UPDATE' THEN
-            RAISE NOTICE 'Personagens não podem ser alterados depois de criados.';
+            PERFORM print('Personagens não podem ser alterados depois de criados.');
             RETURN OLD;
         WHEN 'DELETE' THEN 
             DELETE FROM character_states WHERE player_id = OLD.id;
             EXECUTE format('DROP ROLE %I', OLD.name);
-            RAISE NOTICE 'O personagem % foi excluído da lista de personagens.', OLD.name;
+            PERFORM print(format('O personagem %s foi excluído da lista de personagens.', OLD.name));
             RETURN OLD;
         END CASE;
 

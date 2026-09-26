@@ -3,7 +3,7 @@
 DROP TABLE IF EXISTS char_templates;
 CREATE TABLE char_templates (LIKE character_info INCLUDING ALL);
 
-
+INSERT INTO char_templates (name, description, class, gender, race) VALUES
 -- 1: Guerreiro
 ('Aurelia de Austrisia',
 'Filha de uma família de corsários de Austrisia que jura descender de Numquam Vincar, embora o cabelo dela seja mais castanho do que ruivo. '
