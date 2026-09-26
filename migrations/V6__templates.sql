@@ -5,12 +5,12 @@ CREATE TABLE char_templates (LIKE character_info INCLUDING ALL);
 
 INSERT INTO char_templates (name, description, class, gender, race) VALUES
 ('Lyszt Kaldwin',
- 'A Deestad who never picked up the sword. He left the city of his birth for a colder land in the south '
- 'and works as an engineer, though he rarely finishes anything on time. He believes that to bake bread from scratch '
- 'you must first invent the world, so he refuses to use tools he did not make himself. To build a cart he first forges the hammer, '
- 'and to forge the hammer he first digs the ore. His Personal Core is weak and only lets him glimpse other realities for a moment, '
- 'but he chooses the hard road on purpose, because he thinks understanding is the only thing worth owning. '
- 'Some nights the ghost of the Blade Zenon shows up in his workshop, and he stays up far too late trying to build one from nothing.',
+ 'Um Deestad que nunca empunhou a espada. Deixou a cidade onde nasceu por uma terra mais fria ao sul '
+ 'e trabalha como engenheiro, embora quase nunca termine algo no prazo. Acredita que, para assar pão do zero, '
+ 'é preciso primeiro inventar o mundo, por isso se recusa a usar ferramentas que não fez com as próprias mãos. Para construir uma carroça, primeiro forja o martelo, '
+ 'e para forjar o martelo, primeiro cava o minério. Seu Núcleo Pessoal é fraco e só o deixa vislumbrar outras realidades por um instante, '
+ 'mas ele escolhe o caminho difícil de propósito, porque acha que compreender é a única coisa que vale a pena possuir. '
+ 'Em algumas noites, o fantasma da Lâmina Zenon aparece em sua oficina, e ele fica acordado até tarde demais tentando construir uma do nada.',
  5, 'masculino', 1);
 
 
