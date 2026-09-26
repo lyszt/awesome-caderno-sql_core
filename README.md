@@ -29,6 +29,13 @@ INSERT INTO character_info (name, description, class, race, gender)
 VALUES ('Aria', 'Uma maga curiosa', 2, 1, 'feminino');
 ```
 
+Players who want a ready character can copy one from the templates. The use_template function takes a template id and inserts that character into character_info.
+
+```sql
+SELECT * FROM char_templates;
+SELECT use_template(1);
+```
+
 ## Commands
 
 - make up starts the Postgres container on localhost port 5433.
