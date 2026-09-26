@@ -11,7 +11,8 @@ CREATE TABLE character_info (
     description TEXT,
     class INTEGER NOT NULL REFERENCES classes(id),
     gender genders NOT NULL,
-    race INTEGER NOT NULL REFERENCES races(id)
+    race INTEGER NOT NULL REFERENCES races(id),
+    is_npc BOOLEAN
 );
 
 
@@ -20,14 +21,12 @@ CREATE TYPE player_states AS ENUM(
     'exploring','battle','dead'
 );
 
-
 DROP TABLE IF EXISTS character_states;
 CREATE TABLE character_states(
-    player_id INTEGER REFERENCES character_info(id)  ON DELETE CASCADE NOT NULL,
+    entity_id INTEGER REFERENCES character_info(id)  ON DELETE CASCADE NOT NULL,
     state player_states NOT NULL,
     chapter_id INTEGER NOT NULL DEFAULT 1
 );
-
 
 -- Character permissions
 
@@ -38,7 +37,6 @@ GRANT SELECT ON character_info, character_states TO player;
 
 -- Functions
 
-
 CREATE OR REPLACE FUNCTION check_character_created() RETURNS TRIGGER AS $$
 DECLARE
     char_race races%ROWTYPE;
@@ -46,6 +44,14 @@ DECLARE
     gender_descriptors RECORD;
 
 BEGIN  
+    -- NPC checks
+    IF (TG_OP = 'UPDATE' OR TG_OP = 'INSERT')
+        AND NEW.is_npc THEN
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' AND OLD.is_npc THEN
+        RETURN OLD;
+    END IF;
+
     CASE TG_OP
         WHEN 'INSERT' THEN
             SELECT * INTO gender_descriptors FROM get_gender_descriptors(NEW);
@@ -65,7 +71,7 @@ BEGIN
             PERFORM print('Personagens não podem ser alterados depois de criados.');
             RETURN OLD;
         WHEN 'DELETE' THEN 
-            DELETE FROM character_states WHERE player_id = OLD.id;
+            DELETE FROM character_states WHERE entity_id = OLD.id;
             EXECUTE format('DROP ROLE %I', OLD.name);
             PERFORM print(format('O personagem %s foi excluído da lista de personagens.', OLD.name));
             RETURN OLD;
@@ -102,7 +108,7 @@ CREATE OR REPLACE FUNCTION perform_character_configuration() RETURNS TRIGGER AS 
 BEGIN
  CASE TG_OP
         WHEN 'INSERT' THEN
-            INSERT INTO character_states(player_id, state, chapter_id) VALUES (NEW.id, 'exploring',1);
+            INSERT INTO character_states(entity_id, state, chapter_id) VALUES (NEW.id, 'exploring',1);
             PERFORM clean_frame();
             PERFORM show_characters();
             RETURN NEW;

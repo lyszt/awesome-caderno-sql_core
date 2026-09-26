@@ -23,6 +23,6 @@ BEGIN
     PERFORM print('VENDETTA. O que sobrou de Lygon depois da bomba. Seus sobreviventes abandonaram o antigo nome e escolheram outro, para que ninguém esquecesse o que devem a Mellegothica.');
     PERFORM pg_sleep(3);
 
-    PERFORM print('Então, estudante, de qual nação você vem?');
-
+    PERFORM print('Então, estudante, de qual nação você vem? Para selecionar, explore as tabelas factions e character_allegiance');
+    
 END; $$ LANGUAGE PLPGSQL;

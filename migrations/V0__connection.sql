@@ -27,7 +27,7 @@ BEGIN
             WITH char_state AS (
                 SELECT cs.chapter_id
                 FROM character_info c
-                JOIN character_states cs ON cs.player_id = c.id
+                JOIN character_states cs ON cs.entity_id = c.id
                 WHERE lower(name) = current_user
             )
             SELECT enter_chapter(chapter_id) FROM char_state
