@@ -57,4 +57,4 @@ The project is a way to practice PostgreSQL. It uses triggers, event triggers, r
 
 The code is licensed under the Apache License 2.0, and the LICENSE file has the full text. That license covers the code and nothing else.
 
-The story is a separate work. This means the world of Nexus, its nations, characters, history and lore, and all narrative text in the game such as the printed messages and faction descriptions. The story is Copyright (c) 2026 lyszt, all rights reserved. You can read it and play the game, but you can't copy, adapt or publish the story without written permission. The NOTICE file repeats this rule for anyone who redistributes the code.
+The story is a separate work. This means the world of Nexus, its nations, characters, history and lore, and all narrative text in the game such as the printed messages and faction descriptions. The story is Copyright (c) 2014-2026 lyszt, all rights reserved. You can read it and play the game, but you can't copy, adapt or publish the story without written permission. The NOTICE file repeats this rule for anyone who redistributes the code.
